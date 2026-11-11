@@ -232,15 +232,28 @@ async function registerUser(event) {
 }
 
 // Function to handle user login
+
 async function loginUser(event) {
     event.preventDefault();
+
     const form = event.currentTarget;
     clearFormFeedback(form);
 
     const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('student-password').value;
+
+    const errors = {};
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showFormErrors(form, { email: 'Enter a valid student email address.' });
+        errors.email = 'Enter a valid student email address.';
+    }
+
+    if (!password) {
+        errors.password = 'Enter your password.';
+    }
+
+    if (Object.keys(errors).length) {
+        showFormErrors(form, errors);
         return;
     }
 
@@ -250,43 +263,67 @@ async function loginUser(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email })
+            body: JSON.stringify({
+                email,
+                password
+            })
         });
 
         const data = await readResponse(response);
 
-        if (response.ok) {
-            if (data.userId == null) {
-                showFormErrors(form, {}, 'Student login failed because the server did not return a user ID. Please try again.');
-                return;
-            }
-
-            userId = data.userId;
-
-            document.getElementById('username-display').innerText =
-                `${data.username ?? ''} (${data.department ?? 'General'})`;
-            document.getElementById('roll-number-display').innerText =
-                data.rollNumber ?? '';
-            document.getElementById('casual-leave-display').innerText =
-                data.casualLeave ?? 0;
-            document.getElementById('medical-leave-display').innerText =
-                data.medicalLeave ?? 0;
-
-            document.getElementById('balance-section').style.display = 'block';
-            document.getElementById('apply-leave-section').style.display = 'block';
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('registration-section').style.display = 'none';
-            document.getElementById('logout-button').style.display = 'block';
-            renderStudentLeaveRequests(data.leaveRequests);
-
-            messageElement.innerText = data.message || 'Login successful.';
-            document.getElementById('login-form').reset();
-        } else {
-            showFormErrors(form, { email: data.message || 'No student account was found with this email.' });
+        if (!response.ok) {
+            showFormErrors(
+                form,
+                {},
+                data.message || 'Invalid email or password.'
+            );
+            return;
         }
+
+        if (data.userId == null) {
+            showFormErrors(
+                form,
+                {},
+                'Login failed. User ID was not returned.'
+            );
+            return;
+        }
+
+        userId = data.userId;
+
+        document.getElementById('username-display').innerText =
+            `${data.username ?? ''} (${data.department ?? 'General'})`;
+
+        document.getElementById('roll-number-display').innerText =
+            data.rollNumber ?? '';
+
+        document.getElementById('casual-leave-display').innerText =
+            data.casualLeave ?? 0;
+
+        document.getElementById('medical-leave-display').innerText =
+            data.medicalLeave ?? 0;
+
+        document.getElementById('balance-section').style.display = 'block';
+        document.getElementById('apply-leave-section').style.display = 'block';
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('registration-section').style.display = 'none';
+        document.getElementById('logout-button').style.display = 'block';
+
+        renderStudentLeaveRequests(data.leaveRequests);
+
+        document.getElementById('response-message').innerText =
+            data.message || 'Student login successful.';
+
+        form.reset();
+
     } catch (error) {
-        console.error('Error logging in:', error);
-        showFormErrors(form, {}, 'Could not log in. Check the server connection and try again.');
+        console.error('Student login error:', error);
+
+        showFormErrors(
+            form,
+            {},
+            'Could not log in. Check the server connection.'
+        );
     }
 }
 
