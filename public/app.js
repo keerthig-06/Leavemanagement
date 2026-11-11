@@ -1,3 +1,8 @@
+const API_BASE_URL = "https://leavemanagement-bn4n.onrender.com";
+
+function apiUrl(path) {
+    return API_BASE_URL + path;
+}
 let userId = null;
 let adminToken = null;
 
