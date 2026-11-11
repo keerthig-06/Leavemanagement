@@ -48,10 +48,12 @@ const createAdmin = async (details, isInitialAdmin = false) => {
 };
 
 // Route to handle user registration
+
 router.post('/register', async (req, res) => {
     const {
         username,
         email,
+        password,
         rollNumber,
         department = 'General',
         casualLeave = 0,
@@ -60,23 +62,33 @@ router.post('/register', async (req, res) => {
 
     try {
         const fieldErrors = {};
+
         if (typeof username !== 'string' || !username.trim()) {
             fieldErrors.username = 'Enter a username.';
         }
+
         if (typeof email !== 'string' || !emailRegex.test(email.trim())) {
             fieldErrors.email = 'Enter a valid email address.';
         }
+
+        if (typeof password !== 'string' || password.length < 8) {
+            fieldErrors.password = 'Password must be at least 8 characters.';
+        }
+
         if (typeof rollNumber !== 'string' || !rollNumber.trim()) {
             fieldErrors.rollNumber = 'Enter a roll number.';
         }
+
         if (typeof department !== 'string' || !department.trim()) {
             fieldErrors.department = 'Enter a department.';
         }
+
         if (!Number.isSafeInteger(casualLeave) || casualLeave < 0) {
-            fieldErrors.casualLeave = 'Enter a non-negative whole number of casual leave days.';
+            fieldErrors.casualLeave = 'Enter a valid casual leave balance.';
         }
+
         if (!Number.isSafeInteger(medicalLeave) || medicalLeave < 0) {
-            fieldErrors.medicalLeave = 'Enter a non-negative whole number of medical leave days.';
+            fieldErrors.medicalLeave = 'Enter a valid medical leave balance.';
         }
 
         if (Object.keys(fieldErrors).length) {
@@ -86,7 +98,6 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        // Check whether the email already exists
         const existingUser = await User.findOne({
             email: email.trim().toLowerCase()
         });
@@ -94,43 +105,44 @@ router.post('/register', async (req, res) => {
         if (existingUser) {
             return res.status(400).json({
                 message: 'This email is already registered.',
-                fieldErrors: { email: 'This email is already registered.' }
+                fieldErrors: {
+                    email: 'This email is already registered.'
+                }
             });
         }
 
-        // Create the user
+        const credentials = await hashPassword(password);
+
         const newUser = new User({
             username: username.trim(),
             email: email.trim().toLowerCase(),
             rollNumber: rollNumber.trim(),
             department: department.trim(),
             casualLeave,
-            medicalLeave
+            medicalLeave,
+            ...credentials
         });
 
         await newUser.save();
 
         return res.status(201).json({
-            message: 'User created successfully.',
+            message: 'Student registered successfully.',
             userId: newUser._id,
             username: newUser.username,
             rollNumber: newUser.rollNumber,
             casualLeave: newUser.casualLeave,
             medicalLeave: newUser.medicalLeave
         });
+
     } catch (error) {
         console.error('Error creating user:', error);
 
         if (error.code === 11000) {
             return res.status(409).json({
                 message: 'This email is already registered.',
-                fieldErrors: { email: 'This email is already registered.' }
-            });
-        }
-
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({
-                message: 'Invalid user details.'
+                fieldErrors: {
+                    email: 'This email is already registered.'
+                }
             });
         }
 
@@ -139,6 +151,7 @@ router.post('/register', async (req, res) => {
         });
     }
 });
+
 
 router.get('/admin/setup-status', async (req, res) => {
     const config = getAdminConfig();
@@ -624,23 +637,39 @@ router.patch('/admin/leave-requests/:userId/:requestId', async (req, res) => {
 });
 
 // Route to handle user login
+
 router.post('/login', async (req, res) => {
-    const { email } = req.body;
+    const { email, password } = req.body || {};
 
     try {
+        const fieldErrors = {};
+
         if (typeof email !== 'string' || !email.trim()) {
+            fieldErrors.email = 'Enter your email address.';
+        }
+
+        if (typeof password !== 'string' || !password) {
+            fieldErrors.password = 'Enter your password.';
+        }
+
+        if (Object.keys(fieldErrors).length) {
             return res.status(400).json({
-                message: 'Email is required.'
+                message: 'Enter your email and password.',
+                fieldErrors
             });
         }
 
         const user = await User.findOne({
             email: email.trim().toLowerCase()
-        });
+        }).select('+passwordHash +passwordSalt');
 
-        if (!user) {
-            return res.status(404).json({
-                message: 'User not found.'
+        if (!user || !(await verifyPassword(password, user))) {
+            return res.status(401).json({
+                message: 'Invalid email or password.',
+                fieldErrors: {
+                    email: 'Check your email address.',
+                    password: 'Invalid email or password.'
+                }
             });
         }
 
@@ -654,6 +683,7 @@ router.post('/login', async (req, res) => {
             medicalLeave: user.medicalLeave,
             leaveRequests: user.leaveRequests
         });
+
     } catch (error) {
         console.error('Error during login:', error);
 
@@ -662,6 +692,7 @@ router.post('/login', async (req, res) => {
         });
     }
 });
+
 
 // Route to get leave balance by user ID
 router.get('/leave-balance/:id', async (req, res) => {
