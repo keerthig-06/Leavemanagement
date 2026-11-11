@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,7 +17,7 @@
 
         <h1>Leave Management System</h1>
 
-        <!-- Login Section -->
+        <!-- Student Login Section -->
         <div id="login-section" class="form-section">
             <h2>STUDENT LOGIN</h2>
 
@@ -25,25 +26,36 @@
                 <input type="email" id="email" name="email" required>
                 <span class="field-error" data-error-for="email"></span>
 
+                <!-- Added Student Password Field -->
+                <label for="student-password">Password:</label>
+                <input type="password" id="student-password" name="password" required>
+                <span class="field-error" data-error-for="password"></span>
+
                 <button type="submit" class="btn">Login</button>
             </form>
+
             <div class="form-feedback" id="student-login-feedback" role="alert" aria-live="polite"></div>
 
             <p>
                 Don't have an account?
+
                 <button type="button" id="show-registration" class="link-btn">
                     Create User
                 </button>
+
                 <button type="button" id="show-admin-login" class="link-btn">
                     Admin Login
                 </button>
+
                 <button type="button" id="show-admin-setup" class="link-btn">
                     Create First Admin
                 </button>
             </p>
+
             <p id="admin-setup-status" role="status" aria-live="polite"></p>
         </div>
 
+        <!-- Admin Login Section -->
         <div id="admin-login-section" class="form-section" style="display: none;">
             <h2>Admin Login</h2>
 
@@ -62,6 +74,7 @@
 
                 <button type="submit" class="btn">Login as Admin</button>
             </form>
+
             <div class="form-feedback" id="admin-login-feedback" role="alert" aria-live="polite"></div>
 
             <button type="button" id="back-to-login" class="link-btn">
@@ -69,9 +82,11 @@
             </button>
         </div>
 
+        <!-- Admin Setup Section -->
         <div id="admin-setup-section" class="form-section" style="display: none;">
             <h2>Create First Admin</h2>
             <p>Use the setup key provided by the system administrator.</p>
+
             <form id="admin-setup-form">
                 <label for="setup-key">Admin Setup Key:</label>
                 <input type="password" id="setup-key" name="setupKey" required>
@@ -99,7 +114,9 @@
 
                 <button type="submit" class="btn">Create Admin Account</button>
             </form>
+
             <div class="form-feedback" id="admin-setup-feedback" role="alert" aria-live="polite"></div>
+
             <button type="button" id="back-from-setup" class="link-btn">
                 Back to Login
             </button>
@@ -137,10 +154,12 @@
 
                 <button type="submit" class="btn">Register</button>
             </form>
+
             <div class="form-feedback" id="registration-feedback" role="alert" aria-live="polite"></div>
 
             <p>
                 Already have an account?
+
                 <button type="button" id="show-login" class="link-btn">
                     Login
                 </button>
@@ -177,7 +196,9 @@
             <button type="button" id="logout-button" class="btn" style="display: none;">
                 Logout
             </button>
+
             <h3>My Leave Requests</h3>
+
             <div class="admin-table-wrap">
                 <table>
                     <thead>
@@ -190,6 +211,7 @@
                             <th>Admin Note</th>
                         </tr>
                     </thead>
+
                     <tbody id="student-leave-requests"></tbody>
                 </table>
             </div>
@@ -217,18 +239,28 @@
             </form>
         </div>
 
+        <!-- Admin Dashboard -->
         <section id="admin-dashboard" class="admin-dashboard" style="display: none;">
+
             <div class="admin-heading">
                 <h2>User &amp; Leave Management</h2>
+
                 <button type="button" id="admin-logout-button" class="btn">
                     Admin Logout
                 </button>
             </div>
+
             <p id="admin-profile"></p>
-            <p>Review student leave requests, update account details and leave balances. Use the optional admin setup below only to add another admin account.</p>
+
+            <p>
+                Review student leave requests, update account details and leave balances.
+                Use the optional admin setup below only to add another admin account.
+            </p>
+
             <button type="button" id="refresh-users" class="btn">
                 Refresh Dashboard
             </button>
+
             <div class="admin-table-wrap">
                 <table>
                     <thead>
@@ -242,11 +274,13 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
+
                     <tbody id="admin-users"></tbody>
                 </table>
             </div>
 
             <h3>Leave Applications</h3>
+
             <div class="admin-table-wrap">
                 <table>
                     <thead>
@@ -262,38 +296,46 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
+
                     <tbody id="admin-leave-requests"></tbody>
                 </table>
             </div>
 
             <details class="additional-admin">
                 <summary>Create an Additional Department Admin (Optional)</summary>
-                <p>This creates another staff account with admin access to this dashboard. It is not needed to approve student leave.</p>
-            <form id="create-admin-form">
-                <label for="new-admin-username">Username:</label>
-                <input type="text" id="new-admin-username" name="username" required>
-                <span class="field-error" data-error-for="username"></span>
 
-                <label for="new-admin-email">Email:</label>
-                <input type="email" id="new-admin-email" name="email" required>
-                <span class="field-error" data-error-for="email"></span>
+                <p>
+                    This creates another staff account with admin access to this dashboard.
+                    It is not needed to approve student leave.
+                </p>
 
-                <label for="new-admin-password">Password (at least 8 characters):</label>
-                <input type="password" id="new-admin-password" name="password" minlength="8" required>
-                <span class="field-error" data-error-for="password"></span>
+                <form id="create-admin-form">
+                    <label for="new-admin-username">Username:</label>
+                    <input type="text" id="new-admin-username" name="username" required>
+                    <span class="field-error" data-error-for="username"></span>
 
-                <label for="new-admin-department">Department:</label>
-                <input type="text" id="new-admin-department" name="department" required>
-                <span class="field-error" data-error-for="department"></span>
+                    <label for="new-admin-email">Email:</label>
+                    <input type="email" id="new-admin-email" name="email" required>
+                    <span class="field-error" data-error-for="email"></span>
 
-                <label for="new-admin-designation">Designation:</label>
-                <input type="text" id="new-admin-designation" name="designation" required>
-                <span class="field-error" data-error-for="designation"></span>
+                    <label for="new-admin-password">Password (at least 8 characters):</label>
+                    <input type="password" id="new-admin-password" name="password" minlength="8" required>
+                    <span class="field-error" data-error-for="password"></span>
 
-                <button type="submit" class="btn">Create Department Admin</button>
-            </form>
-            <div class="form-feedback" id="create-admin-feedback" role="alert" aria-live="polite"></div>
+                    <label for="new-admin-department">Department:</label>
+                    <input type="text" id="new-admin-department" name="department" required>
+                    <span class="field-error" data-error-for="department"></span>
+
+                    <label for="new-admin-designation">Designation:</label>
+                    <input type="text" id="new-admin-designation" name="designation" required>
+                    <span class="field-error" data-error-for="designation"></span>
+
+                    <button type="submit" class="btn">Create Department Admin</button>
+                </form>
+
+                <div class="form-feedback" id="create-admin-feedback" role="alert" aria-live="polite"></div>
             </details>
+
         </section>
 
         <!-- General Response Messages -->
