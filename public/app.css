@@ -1,4 +1,5 @@
 
+/* GENERAL RESET */
 *,
 *::before,
 *::after {
@@ -14,6 +15,7 @@ p {
     padding: 0;
 }
 
+/* BODY */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -23,7 +25,15 @@ body {
     padding: 20px 0;
 }
 
-/* Main Container */
+/* HEADER */
+header h1 {
+    text-align: center;
+    color: #333;
+    font-size: 28px;
+    margin: 20px 0 25px;
+}
+
+/* MAIN CONTAINER */
 .container {
     width: 90%;
     max-width: 850px;
@@ -34,14 +44,7 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Main Heading */
-header h1 {
-    text-align: center;
-    margin: 20px 0 25px;
-    color: #333;
-    font-size: 28px;
-}
-
+/* HEADINGS */
 h2 {
     margin-bottom: 15px;
     font-size: 22px;
@@ -54,19 +57,23 @@ h3 {
     color: #444;
 }
 
-/* Sections */
+p {
+    margin-bottom: 10px;
+}
+
+/* SECTIONS */
 section {
     margin-bottom: 25px;
 }
 
-/* Labels */
+/* LABELS */
 label {
     display: block;
     margin: 10px 0 5px;
     font-weight: 600;
 }
 
-/* Input Fields */
+/* INPUTS */
 input[type="text"],
 input[type="email"],
 input[type="number"],
@@ -83,6 +90,8 @@ textarea {
     color: #333;
     font-size: 16px;
     font-family: Arial, sans-serif;
+    outline: none;
+    transition: border-color 0.3s ease;
 }
 
 textarea {
@@ -90,18 +99,18 @@ textarea {
     resize: vertical;
 }
 
-/* Input Focus */
+/* INPUT FOCUS */
 input:focus,
 select:focus,
 textarea:focus {
     border-color: #5cb85c;
     box-shadow: 0 0 0 2px rgba(92, 184, 92, 0.15);
-    outline: none;
 }
 
-/* Error Messages */
+/* FIELD ERRORS */
 .field-error {
     display: block;
+    min-height: 0;
     margin: -10px 0 10px;
     color: #c62828;
     font-size: 13px;
@@ -115,7 +124,7 @@ textarea:focus {
     border-color: #c62828 !important;
 }
 
-/* Feedback Messages */
+/* FEEDBACK */
 #response-message,
 #registration-feedback,
 #student-login-feedback,
@@ -123,7 +132,7 @@ textarea:focus {
 #admin-setup-feedback,
 #admin-response-message,
 #create-admin-feedback {
-    margin: 12px 0;
+    margin-top: 15px;
     overflow-wrap: anywhere;
 }
 
@@ -135,11 +144,15 @@ textarea:focus {
     color: #267326;
 }
 
-/* Buttons */
+#registration-feedback {
+    color: #267326;
+}
+
+/* ALL BUTTONS */
 button {
-    font-family: Arial, sans-serif;
-    padding: 10px 16px;
-    margin: 5px 3px 5px 0;
+    font-family: inherit;
+    padding: 10px 18px;
+    margin: 5px 5px 5px 0;
     background-color: #5cb85c;
     color: #fff;
     border: none;
@@ -150,15 +163,66 @@ button {
 }
 
 button:hover {
-    background-color: #4cae4c;
+    background-color: #449d44;
+}
+
+button:active {
+    background-color: #398439;
 }
 
 button:disabled {
-    cursor: wait;
+    background-color: #aaa;
+    cursor: not-allowed;
     opacity: 0.65;
 }
 
-/* Tables */
+/* SUBMIT BUTTONS */
+button[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+/* LINK BUTTONS */
+.link-btn {
+    display: inline-block;
+    padding: 4px;
+    background: none;
+    color: #007bff;
+    border: none;
+    cursor: pointer;
+    font-size: inherit;
+}
+
+.link-btn:hover {
+    background: none;
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* STUDENT DASHBOARD */
+#balance-section {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+#balance-section p {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+/* APPLY LEAVE */
+#apply-leave-section {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+/* TABLES */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -174,39 +238,51 @@ td {
 
 th {
     background-color: #f9f9f9;
+    color: #333;
     font-weight: 600;
 }
 
-td input {
-    min-width: 90px;
-    margin: 0;
-}
-
-/* Dashboard Sections */
-#balance-section,
-#apply-leave-section,
-#admin-dashboard {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #ddd;
-}
-
-/* Student Leave Requests */
-#student-leave-requests tr:hover,
-#admin-users tr:hover,
-#admin-leave-requests tr:hover {
+tbody tr:hover {
     background-color: #f9f9f9;
 }
 
-/* Admin Dashboard */
+/* ADMIN DASHBOARD */
 #admin-dashboard {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
     overflow-x: auto;
 }
 
 #admin-dashboard table {
-    min-width: 700px;
+    min-width: 750px;
 }
 
+#admin-dashboard input {
+    min-width: 100px;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ADMIN ACTION BUTTONS */
+#admin-dashboard button {
+    margin: 3px;
+}
+
+#admin-dashboard button[disabled] {
+    opacity: 0.65;
+}
+
+/* DELETE BUTTON */
+.delete-button {
+    background-color: #c62828;
+}
+
+.delete-button:hover {
+    background-color: #a51d1d;
+}
+
+/* LEAVE FEEDBACK */
 .leave-action-feedback {
     color: #267326;
 }
@@ -215,8 +291,9 @@ td input {
     color: #c62828;
 }
 
-/* Responsive Design */
+/* RESPONSIVE DESIGN */
 @media (max-width: 600px) {
+
     .container {
         width: 95%;
         margin: 10px auto;
@@ -231,8 +308,25 @@ td input {
         font-size: 20px;
     }
 
+    h3 {
+        font-size: 17px;
+    }
+
     button {
         font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="password"],
+    select,
+    textarea {
+        font-size: 16px;
+    }
+
+    #admin-dashboard {
+        overflow-x: auto;
     }
 
     table {
