@@ -1,3 +1,4 @@
+
 *,
 *::before,
 *::after {
@@ -7,12 +8,12 @@
 body,
 h1,
 h2,
+h3,
 p {
     margin: 0;
     padding: 0;
 }
 
-/* Body Styles */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -22,10 +23,10 @@ body {
     padding: 20px 0;
 }
 
-/* Container Styles */
+/* Main Container */
 .container {
     width: 90%;
-    max-width: 600px;
+    max-width: 850px;
     margin: 30px auto;
     padding: 25px;
     background: #fff;
@@ -33,10 +34,10 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Heading Styles */
-h1 {
+/* Main Heading */
+header h1 {
     text-align: center;
-    margin-bottom: 25px;
+    margin: 20px 0 25px;
     color: #333;
     font-size: 28px;
 }
@@ -47,24 +48,31 @@ h2 {
     color: #444;
 }
 
-/* Form Section Styles */
-.form-section {
-    margin-bottom: 30px;
+h3 {
+    margin: 20px 0 12px;
+    font-size: 18px;
+    color: #444;
 }
 
-/* Label Styles */
+/* Sections */
+section {
+    margin-bottom: 25px;
+}
+
+/* Labels */
 label {
     display: block;
     margin: 10px 0 5px;
     font-weight: 600;
 }
 
-/* Input and Select Styles */
+/* Input Fields */
 input[type="text"],
 input[type="email"],
 input[type="number"],
 input[type="password"],
-select {
+select,
+textarea {
     display: block;
     width: 100%;
     padding: 10px;
@@ -74,32 +82,26 @@ select {
     background-color: #fff;
     color: #333;
     font-size: 16px;
-    outline: none;
-    transition: border-color 0.3s ease;
+    font-family: Arial, sans-serif;
 }
 
 textarea {
-    display: block;
-    width: 100%;
     min-height: 90px;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font: inherit;
+    resize: vertical;
 }
 
-/* Focus Styles */
+/* Input Focus */
 input:focus,
 select:focus,
 textarea:focus {
     border-color: #5cb85c;
     box-shadow: 0 0 0 2px rgba(92, 184, 92, 0.15);
+    outline: none;
 }
 
+/* Error Messages */
 .field-error {
     display: block;
-    min-height: 0;
     margin: -10px 0 10px;
     color: #c62828;
     font-size: 13px;
@@ -113,280 +115,96 @@ textarea:focus {
     border-color: #c62828 !important;
 }
 
-.form-feedback {
-    margin: 8px 0 14px;
-    color: #c62828;
+/* Feedback Messages */
+#response-message,
+#registration-feedback,
+#student-login-feedback,
+#admin-login-feedback,
+#admin-setup-feedback,
+#admin-response-message,
+#create-admin-feedback {
+    margin: 12px 0;
     overflow-wrap: anywhere;
+}
+
+.form-feedback {
+    color: #c62828;
 }
 
 .form-feedback.success {
     color: #267326;
 }
 
-/* General Button Styles */
+/* Buttons */
 button {
-    font-family: inherit;
-}
-
-/* Main Button Styles */
-.btn {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
+    font-family: Arial, sans-serif;
+    padding: 10px 16px;
+    margin: 5px 3px 5px 0;
     background-color: #5cb85c;
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
     transition: background-color 0.3s ease;
 }
 
-.btn:hover {
+button:hover {
     background-color: #4cae4c;
 }
 
-.btn:focus-visible,
-.link-btn:focus-visible {
-    outline: 2px solid #0056b3;
-    outline-offset: 3px;
+button:disabled {
+    cursor: wait;
+    opacity: 0.65;
 }
 
-/* Link Button Styles */
-.link-btn {
-    display: inline-block;
-    padding: 4px;
-    background: none;
-    color: #007bff;
-    border: none;
-    cursor: pointer;
-    font-size: inherit;
-}
-
-.link-btn:hover {
-    text-decoration: underline;
-}
-
-/* Paragraph Styles */
-p {
-    margin-bottom: 10px;
-}
-
-/* Leave Balance Section */
-.balance-section {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 5px;
-}
-
-#leave-balance {
-    margin: 15px 0;
-}
-
-#leave-balance p {
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-}
-
-/* Apply Leave Section */
-.apply-leave-section {
-    margin-top: 25px;
-    padding-top: 15px;
-    border-top: 1px solid #ddd;
-}
-
-/* Admin dashboard */
-.admin-dashboard {
-    margin-top: 25px;
-    padding-top: 15px;
-    border-top: 1px solid #ddd;
-}
-
-.admin-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.admin-heading .btn {
-    width: auto;
-    flex-shrink: 0;
-}
-
-.admin-table-wrap {
-    overflow-x: auto;
-}
-
-.admin-table-wrap table {
+/* Tables */
+table {
     width: 100%;
-    min-width: 1250px;
     border-collapse: collapse;
+    margin: 15px 0 25px;
 }
 
-.balance-section .admin-table-wrap table {
-    min-width: 750px;
-}
-
-.admin-table-wrap th,
-.admin-table-wrap td {
-    padding: 8px;
+th,
+td {
+    padding: 10px;
     border-bottom: 1px solid #eee;
     text-align: left;
 }
 
-.admin-table-wrap th {
-    background: #f9f9f9;
-}
-
-.admin-table-wrap input {
-    min-width: 110px;
-    margin: 0;
-    font-size: 14px;
-}
-
-.admin-dashboard .table-action {
-    width: auto;
-    padding: 8px 10px;
-    margin: 3px;
-    font-size: 14px;
-}
-
-.admin-dashboard .delete-button {
-    background-color: #c62828;
-}
-
-.additional-admin {
-    margin-top: 24px;
-    padding-top: 14px;
-    border-top: 1px solid #ddd;
-}
-
-.additional-admin summary {
-    cursor: pointer;
-    color: #0056b3;
+th {
+    background-color: #f9f9f9;
     font-weight: 600;
 }
 
-.additional-admin p {
-    margin-top: 10px;
+td input {
+    min-width: 90px;
+    margin: 0;
 }
 
-/* Response Message Styles */
-#response-message,
-#registration-response,
-#admin-response-message {
-    margin-top: 15px;
-    overflow-wrap: anywhere;
+/* Dashboard Sections */
+#balance-section,
+#apply-leave-section,
+#admin-dashboard {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
 }
 
-#response-message {
-    color: #c62828;
+/* Student Leave Requests */
+#student-leave-requests tr:hover,
+#admin-users tr:hover,
+#admin-leave-requests tr:hover {
+    background-color: #f9f9f9;
 }
 
-#registration-response {
-    color: #267326;
+/* Admin Dashboard */
+#admin-dashboard {
+    overflow-x: auto;
 }
 
-#admin-response-message {
-    color: #267326;
-}
-
-/* Responsive Styles */
-@media (max-width: 600px) {
-    .container {
-        width: 95%;
-        margin: 10px auto;
-        padding: 15px;
-    }
-
-    h1 {
-        font-size: 24px;
-    }
-
-    h2 {
-        font-size: 20px;
-    }
-
-    .btn {
-        font-size: 15px;
-    }
-
-    .admin-heading {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    label {
-        font-size: 14px;
-    }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="number"],
-    input[type="password"],
-    textarea,
-    select {
-        font-size: 16px;
-    }
-
-    #admin-leave-requests {
-        display: block;
-        min-width: 0;
-    }
-
-    #admin-leave-requests tr:not(.leave-feedback-row) {
-        display: block;
-        margin: 0 0 14px;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        background: #fff;
-    }
-
-    #admin-leave-requests td {
-        display: grid;
-        grid-template-columns: minmax(92px, 34%) minmax(0, 1fr);
-        gap: 8px;
-        padding: 7px 4px;
-        overflow-wrap: anywhere;
-        text-align: left;
-    }
-
-    #admin-leave-requests td[data-label]::before {
-        content: attr(data-label);
-        font-weight: 600;
-    }
-
-    #admin-leave-requests td[data-label="Actions"] {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding-top: 10px;
-    }
-
-    #admin-leave-requests .table-action {
-        display: inline-block;
-        min-width: 110px;
-        margin: 0;
-    }
-
-    #admin-leave-requests .leave-feedback-row {
-        display: block;
-        margin: -10px 0 14px;
-    }
-
-    #admin-leave-requests .leave-feedback-row td {
-        display: block;
-        padding: 4px 8px;
-        border: 0;
-    }
-
-    #admin-leave-requests .leave-feedback-row td::before {
-        content: none;
-    }
+#admin-dashboard table {
+    min-width: 700px;
 }
 
 .leave-action-feedback {
@@ -397,7 +215,27 @@ p {
     color: #c62828;
 }
 
-.admin-dashboard button:disabled {
-    cursor: wait;
-    opacity: 0.65;
+/* Responsive Design */
+@media (max-width: 600px) {
+    .container {
+        width: 95%;
+        margin: 10px auto;
+        padding: 15px;
+    }
+
+    header h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+
+    table {
+        font-size: 13px;
+    }
 }
