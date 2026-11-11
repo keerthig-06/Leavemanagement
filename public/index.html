@@ -1,412 +1,329 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leave Management System</title>
-
-    <link rel="stylesheet" href="app.css">
-    <script src="app.js" defer></script>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <div class="container">
 
+    <header>
         <h1>Leave Management System</h1>
+    </header>
+
+    <main>
 
         <!-- Student Login -->
-        <div id="login-section" class="form-section">
-            <h2>STUDENT LOGIN</h2>
+        <section id="login-section">
+            <h2>Student Login</h2>
 
             <form id="login-form">
-
-                <label for="email">Email:</label>
+                <label>Email</label>
                 <input type="email" id="email" name="email" required>
-                <span class="field-error" data-error-for="email"></span>
+                <small class="field-error" data-error-for="email"></small>
 
-                <label for="student-password">Password:</label>
-                <input type="password" id="student-password" name="password" required>
-                <span class="field-error" data-error-for="password"></span>
+                <label>Password</label>
+                <input type="password" id="student-password"
+                       name="password" required>
+                <small class="field-error" data-error-for="password"></small>
 
-                <button type="submit" class="btn">Login</button>
-
+                <button type="submit">Login</button>
+                <p id="student-login-feedback"></p>
             </form>
 
-            <div class="form-feedback" id="student-login-feedback"
-                role="alert" aria-live="polite"></div>
-
-            <p>
-                Don't have an account?
-
-                <button type="button" id="show-registration" class="link-btn">
-                    Create User
-                </button>
-
-                <button type="button" id="show-admin-login" class="link-btn">
-                    Admin Login
-                </button>
-
-                <button type="button" id="show-admin-setup" class="link-btn">
-                    Create First Admin
-                </button>
-            </p>
-
-            <p id="admin-setup-status" role="status" aria-live="polite"></p>
-        </div>
-
-        <!-- Admin Login -->
-        <div id="admin-login-section" class="form-section" style="display: none;">
-
-            <h2>Admin Login</h2>
-
-            <form id="admin-login-form">
-
-                <label for="admin-login-username">Username:</label>
-                <input type="text" id="admin-login-username" name="username" required>
-                <span class="field-error" data-error-for="username"></span>
-
-                <label for="admin-email">Admin Email:</label>
-                <input type="email" id="admin-email" name="email" required>
-                <span class="field-error" data-error-for="email"></span>
-
-                <label for="admin-password">Password:</label>
-                <input type="password" id="admin-password" name="password" required>
-                <span class="field-error" data-error-for="password"></span>
-
-                <button type="submit" class="btn">Login as Admin</button>
-
-            </form>
-
-            <div class="form-feedback" id="admin-login-feedback"
-                role="alert" aria-live="polite"></div>
-
-            <button type="button" id="back-to-login" class="link-btn">
-                Back to User Login
+            <button type="button" id="show-registration">
+                Create Account
             </button>
 
-        </div>
-
-        <!-- Admin Setup -->
-        <div id="admin-setup-section" class="form-section" style="display: none;">
-
-            <h2>Create First Admin</h2>
-
-            <p>Use the setup key provided by the system administrator.</p>
-
-            <form id="admin-setup-form">
-
-                <label for="setup-key">Admin Setup Key:</label>
-                <input type="password" id="setup-key" name="setupKey" required>
-                <span class="field-error" data-error-for="setupKey"></span>
-
-                <label for="setup-username">Username:</label>
-                <input type="text" id="setup-username" name="username" required>
-                <span class="field-error" data-error-for="username"></span>
-
-                <label for="setup-email">Email:</label>
-                <input type="email" id="setup-email" name="email" required>
-                <span class="field-error" data-error-for="email"></span>
-
-                <label for="setup-password">Password (at least 8 characters):</label>
-                <input type="password" id="setup-password" name="password" minlength="8" required>
-                <span class="field-error" data-error-for="password"></span>
-
-                <label for="setup-department">Department:</label>
-                <input type="text" id="setup-department" name="department" required>
-                <span class="field-error" data-error-for="department"></span>
-
-                <label for="setup-designation">Designation:</label>
-                <input type="text" id="setup-designation" name="designation" required>
-                <span class="field-error" data-error-for="designation"></span>
-
-                <button type="submit" class="btn">Create Admin Account</button>
-
-            </form>
-
-            <div class="form-feedback" id="admin-setup-feedback"
-                role="alert" aria-live="polite"></div>
-
-            <button type="button" id="back-from-setup" class="link-btn">
-                Back to Login
+            <button type="button" id="show-admin-login">
+                Admin Login
             </button>
-
-        </div>
+        </section>
 
         <!-- Student Registration -->
-        <div id="registration-section" class="form-section" style="display: none;">
-
-            <h2>Create User</h2>
+        <section id="registration-section" style="display:none;">
+            <h2>Student Registration</h2>
 
             <form id="registration-form">
 
-                <label for="username">Username:</label>
+                <label>Username</label>
                 <input type="text" id="username" name="username" required>
-                <span class="field-error" data-error-for="username"></span>
+                <small class="field-error" data-error-for="username"></small>
 
-                <label for="reg-email">Email:</label>
+                <label>Email</label>
                 <input type="email" id="reg-email" name="email" required>
-                <span class="field-error" data-error-for="email"></span>
+                <small class="field-error" data-error-for="email"></small>
 
-                <label for="reg-password">Password (at least 8 characters):</label>
-                <input type="password" id="reg-password" name="password"
-                    minlength="8" required>
-                <span class="field-error" data-error-for="password"></span>
+                <label>Roll Number</label>
+                <input type="text" id="roll-number"
+                       name="rollNumber" required>
+                <small class="field-error" data-error-for="rollNumber"></small>
 
-                <label for="roll-number">Roll Number:</label>
-                <input type="text" id="roll-number" name="rollNumber" required>
-                <span class="field-error" data-error-for="rollNumber"></span>
+                <label>Department</label>
+                <input type="text" id="user-department"
+                       name="department" required>
+                <small class="field-error" data-error-for="department"></small>
 
-                <label for="user-department">Department:</label>
-                <input type="text" id="user-department" name="department" required>
-                <span class="field-error" data-error-for="department"></span>
+                <label>Password</label>
+                <input type="password" id="student-reg-password"
+                       name="password" minlength="8" required>
+                <small class="field-error" data-error-for="password"></small>
 
-                <label for="casual-leave">Initial Casual Leave:</label>
-                <input type="number" id="casual-leave" name="casualLeave"
-                    min="0" step="1" value="0" required>
-                <span class="field-error" data-error-for="casualLeave"></span>
+                <label>Casual Leave</label>
+                <input type="number" id="casual-leave"
+                       name="casualLeave" min="0" value="0" required>
+                <small class="field-error" data-error-for="casualLeave"></small>
 
-                <label for="medical-leave">Initial Medical Leave:</label>
-                <input type="number" id="medical-leave" name="medicalLeave"
-                    min="0" step="1" value="0" required>
-                <span class="field-error" data-error-for="medicalLeave"></span>
+                <label>Medical Leave</label>
+                <input type="number" id="medical-leave"
+                       name="medicalLeave" min="0" value="0" required>
+                <small class="field-error" data-error-for="medicalLeave"></small>
 
-                <button type="submit" class="btn">Register</button>
+                <button type="submit">Register</button>
 
+                <p id="registration-feedback"></p>
             </form>
 
-            <div class="form-feedback" id="registration-feedback"
-                role="alert" aria-live="polite"></div>
+            <button type="button" id="show-login">
+                Back to Login
+            </button>
+        </section>
 
-            <p>
-                Already have an account?
+        <!-- Student Dashboard -->
+        <section id="balance-section" style="display:none;">
+            <h2>Student Dashboard</h2>
 
-                <button type="button" id="show-login" class="link-btn">
-                    Login
-                </button>
+            <p>Student: <span id="username-display"></span></p>
+            <p>Roll Number: <span id="roll-number-display"></span></p>
+
+            <p>Casual Leave:
+                <span id="casual-leave-display">Loading...</span>
             </p>
 
-            <div id="registration-response" role="status" aria-live="polite"></div>
-
-        </div>
-
-        <!-- Student Leave Balance -->
-        <div class="balance-section" id="balance-section" style="display: none;">
-
-            <h2>Leave Balance</h2>
-
-            <p>
-                Welcome, <span id="username-display"></span>
-                (Roll Number: <span id="roll-number-display"></span>)
+            <p>Medical Leave:
+                <span id="medical-leave-display">Loading...</span>
             </p>
 
-            <div id="leave-balance">
-
-                <p>
-                    Casual Leave:
-                    <span id="casual-leave-display">Loading...</span>
-                </p>
-
-                <p>
-                    Medical Leave:
-                    <span id="medical-leave-display">Loading...</span>
-                </p>
-
-            </div>
-
-            <button type="button" id="refresh-balance" class="btn">
+            <button type="button" id="refresh-balance">
                 Refresh Balance
             </button>
 
-            <button type="button" id="logout-button" class="btn"
-                style="display: none;">
+            <button type="button" id="logout-button"
+                    style="display:none;">
                 Logout
             </button>
 
-            <h3>My Leave Requests</h3>
-
-            <div class="admin-table-wrap">
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Days</th>
-                            <th>Reason</th>
-                            <th>Submitted</th>
-                            <th>Status</th>
-                            <th>Admin Note</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="student-leave-requests"></tbody>
-                </table>
-
-            </div>
-
-        </div>
+            <p id="response-message"></p>
+        </section>
 
         <!-- Apply Leave -->
-        <div class="apply-leave-section" id="apply-leave-section"
-            style="display: none;">
-
+        <section id="apply-leave-section" style="display:none;">
             <h2>Apply for Leave</h2>
 
             <form id="leave-form">
 
-                <label for="leave-type">Leave Type:</label>
-
-                <select id="leave-type" name="type" required>
-                    <option value="casual">Casual</option>
-                    <option value="medical">Medical</option>
+                <label>Leave Type</label>
+                <select id="leave-type" required>
+                    <option value="">Select Leave Type</option>
+                    <option value="casual">Casual Leave</option>
+                    <option value="medical">Medical Leave</option>
                 </select>
 
-                <label for="leave-days">Number of Days:</label>
-                <input type="number" id="leave-days" name="days"
-                    min="1" step="1" required>
+                <label>Number of Days</label>
+                <input type="number" id="leave-days"
+                       min="1" required>
 
-                <label for="leave-reason">Reason:</label>
-                <textarea id="leave-reason" name="reason"
-                    maxlength="1000" required></textarea>
+                <label>Reason</label>
+                <textarea id="leave-reason" required></textarea>
 
-                <button type="submit" class="btn">Apply Leave</button>
-
+                <button type="submit">Submit Leave Request</button>
             </form>
 
-        </div>
+            <h3>My Leave Requests</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Days</th>
+                        <th>Reason</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Admin Note</th>
+                    </tr>
+                </thead>
+                <tbody id="student-leave-requests"></tbody>
+            </table>
+        </section>
+
+        <!-- Admin Login -->
+        <section id="admin-login-section" style="display:none;">
+            <h2>Admin Login</h2>
+
+            <form id="admin-login-form">
+
+                <label>Username</label>
+                <input type="text" id="admin-login-username"
+                       name="username" required>
+                <small class="field-error" data-error-for="username"></small>
+
+                <label>Email</label>
+                <input type="email" id="admin-email"
+                       name="email" required>
+                <small class="field-error" data-error-for="email"></small>
+
+                <label>Password</label>
+                <input type="password" id="admin-password"
+                       name="password" required>
+                <small class="field-error" data-error-for="password"></small>
+
+                <button type="submit">Admin Login</button>
+
+                <p id="admin-login-feedback"></p>
+            </form>
+
+            <button type="button" id="show-admin-setup">
+                Create First Admin
+            </button>
+
+            <p id="admin-setup-status"></p>
+
+            <button type="button" id="back-to-login">
+                Back to Student Login
+            </button>
+        </section>
+
+        <!-- First Admin Setup -->
+        <section id="admin-setup-section" style="display:none;">
+            <h2>Create First Admin</h2>
+
+            <form id="admin-setup-form">
+
+                <label>Setup Key</label>
+                <input type="password" name="setupKey" required>
+                <small class="field-error" data-error-for="setupKey"></small>
+
+                <label>Username</label>
+                <input type="text" name="username" required>
+                <small class="field-error" data-error-for="username"></small>
+
+                <label>Email</label>
+                <input type="email" name="email" required>
+                <small class="field-error" data-error-for="email"></small>
+
+                <label>Password</label>
+                <input type="password" name="password"
+                       minlength="8" required>
+                <small class="field-error" data-error-for="password"></small>
+
+                <label>Department</label>
+                <input type="text" name="department" required>
+                <small class="field-error" data-error-for="department"></small>
+
+                <label>Designation</label>
+                <input type="text" name="designation" required>
+                <small class="field-error" data-error-for="designation"></small>
+
+                <button type="submit">Create Admin</button>
+
+                <p id="admin-setup-feedback"></p>
+            </form>
+
+            <button type="button" id="back-from-setup">
+                Back to Login
+            </button>
+        </section>
 
         <!-- Admin Dashboard -->
-        <section id="admin-dashboard" class="admin-dashboard"
-            style="display: none;">
-
-            <div class="admin-heading">
-
-                <h2>User &amp; Leave Management</h2>
-
-                <button type="button" id="admin-logout-button" class="btn">
-                    Admin Logout
-                </button>
-
-            </div>
+        <section id="admin-dashboard" style="display:none;">
+            <h2>Admin Dashboard</h2>
 
             <p id="admin-profile"></p>
 
-            <p>
-                Review student leave requests, update account details and
-                leave balances. Use the optional admin setup below only
-                to add another admin account.
-            </p>
+            <button type="button" id="admin-logout-button">
+                Logout
+            </button>
 
-            <button type="button" id="refresh-users" class="btn">
+            <button type="button" id="refresh-users">
                 Refresh Dashboard
             </button>
 
-            <!-- Admin User List -->
-            <div class="admin-table-wrap">
+            <p id="admin-response-message"></p>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Roll Number</th>
-                            <th>Department</th>
-                            <th>Casual Leave</th>
-                            <th>Medical Leave</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+            <h3>Student Details</h3>
 
-                    <tbody id="admin-users"></tbody>
-                </table>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Roll Number</th>
+                        <th>Department</th>
+                        <th>Casual Leave</th>
+                        <th>Medical Leave</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
-            </div>
+                <tbody id="admin-users"></tbody>
+            </table>
 
-            <!-- Leave Applications -->
-            <h3>Leave Applications</h3>
+            <h3>Student Leave Requests</h3>
 
-            <div class="admin-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Department</th>
+                        <th>Leave Type</th>
+                        <th>Days</th>
+                        <th>Reason</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Admin Note</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>Department</th>
-                            <th>Type</th>
-                            <th>Days</th>
-                            <th>Reason</th>
-                            <th>Submitted</th>
-                            <th>Status</th>
-                            <th>Admin Note</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+                <tbody id="admin-leave-requests"></tbody>
+            </table>
 
-                    <tbody id="admin-leave-requests"></tbody>
-                </table>
+            <h3>Create Department Admin</h3>
 
-            </div>
+            <form id="create-admin-form">
 
-            <!-- Additional Admin -->
-            <details class="additional-admin">
+                <label>Username</label>
+                <input type="text" name="username" required>
+                <small class="field-error" data-error-for="username"></small>
 
-                <summary>Create an Additional Department Admin (Optional)</summary>
+                <label>Email</label>
+                <input type="email" name="email" required>
+                <small class="field-error" data-error-for="email"></small>
 
-                <p>
-                    This creates another staff account with admin access
-                    to this dashboard. It is not needed to approve student leave.
-                </p>
+                <label>Password</label>
+                <input type="password" name="password"
+                       minlength="8" required>
+                <small class="field-error" data-error-for="password"></small>
 
-                <form id="create-admin-form">
+                <label>Department</label>
+                <input type="text" name="department" required>
+                <small class="field-error" data-error-for="department"></small>
 
-                    <label for="new-admin-username">Username:</label>
-                    <input type="text" id="new-admin-username"
-                        name="username" required>
-                    <span class="field-error" data-error-for="username"></span>
+                <label>Designation</label>
+                <input type="text" name="designation" required>
+                <small class="field-error" data-error-for="designation"></small>
 
-                    <label for="new-admin-email">Email:</label>
-                    <input type="email" id="new-admin-email"
-                        name="email" required>
-                    <span class="field-error" data-error-for="email"></span>
+                <button type="submit">Create Admin</button>
 
-                    <label for="new-admin-password">
-                        Password (at least 8 characters):
-                    </label>
-
-                    <input type="password" id="new-admin-password"
-                        name="password" minlength="8" required>
-                    <span class="field-error" data-error-for="password"></span>
-
-                    <label for="new-admin-department">Department:</label>
-                    <input type="text" id="new-admin-department"
-                        name="department" required>
-                    <span class="field-error" data-error-for="department"></span>
-
-                    <label for="new-admin-designation">Designation:</label>
-                    <input type="text" id="new-admin-designation"
-                        name="designation" required>
-                    <span class="field-error" data-error-for="designation"></span>
-
-                    <button type="submit" class="btn">
-                        Create Department Admin
-                    </button>
-
-                </form>
-
-                <div class="form-feedback" id="create-admin-feedback"
-                    role="alert" aria-live="polite"></div>
-
-            </details>
-
+                <p id="create-admin-feedback"></p>
+            </form>
         </section>
 
-        <!-- General Messages -->
-        <div id="response-message" role="status" aria-live="polite"></div>
+    </main>
 
-        <div id="admin-response-message" role="status" aria-live="polite"></div>
+    <script src="app.js" defer></script>
 
-    </div>
 </body>
-
 </html>
