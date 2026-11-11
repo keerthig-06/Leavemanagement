@@ -166,8 +166,10 @@ function getAdminSetupConnectionMessage() {
 }
 
 // Function to handle user registration
+
 async function registerUser(event) {
     event.preventDefault();
+
     const form = event.currentTarget;
     clearFormFeedback(form);
 
@@ -177,19 +179,29 @@ async function registerUser(event) {
     const department = document.getElementById('user-department').value.trim();
     const casualLeave = Number(document.getElementById('casual-leave').value);
     const medicalLeave = Number(document.getElementById('medical-leave').value);
+    const password = document.getElementById('student-reg-password').value;
 
-    const messageElement = document.getElementById('registration-feedback');
     const fieldErrors = {};
 
     if (!username) fieldErrors.username = 'Enter a username.';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fieldErrors.email = 'Enter a valid email address.';
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        fieldErrors.email = 'Enter a valid email address.';
+    }
+
     if (!rollNumber) fieldErrors.rollNumber = 'Enter a roll number.';
     if (!department) fieldErrors.department = 'Enter a department.';
-    if (!Number.isSafeInteger(casualLeave) || casualLeave < 0) {
-        fieldErrors.casualLeave = 'Enter a non-negative whole number of casual leave days.';
+
+    if (password.length < 8) {
+        fieldErrors.password = 'Password must be at least 8 characters.';
     }
+
+    if (!Number.isSafeInteger(casualLeave) || casualLeave < 0) {
+        fieldErrors.casualLeave = 'Enter a valid casual leave balance.';
+    }
+
     if (!Number.isSafeInteger(medicalLeave) || medicalLeave < 0) {
-        fieldErrors.medicalLeave = 'Enter a non-negative whole number of medical leave days.';
+        fieldErrors.medicalLeave = 'Enter a valid medical leave balance.';
     }
 
     if (Object.keys(fieldErrors).length) {
@@ -209,25 +221,37 @@ async function registerUser(event) {
                 rollNumber,
                 department,
                 casualLeave,
-                medicalLeave
+                medicalLeave,
+                password
             })
         });
 
         const data = await readResponse(response);
 
         if (response.ok) {
-            messageElement.innerText = data.message || 'Registration successful! Please log in.';
+            const messageElement = document.getElementById('registration-feedback');
+
+            messageElement.innerText =
+                data.message || 'Registration successful! Please log in.';
+
             messageElement.classList.add('success');
 
-            document.getElementById('registration-form').reset();
+            form.reset();
+
             document.getElementById('registration-section').style.display = 'none';
             document.getElementById('login-section').style.display = 'block';
         } else {
             mapServerError(form, data, 'student-registration');
         }
+
     } catch (error) {
         console.error('Error registering user:', error);
-        showFormErrors(form, {}, 'Could not register the student. Check the server connection and try again.');
+
+        showFormErrors(
+            form,
+            {},
+            'Could not register the student. Check the server connection and try again.'
+        );
     }
 }
 
