@@ -1,7 +1,18 @@
+// Render backend URL
+const API_BASE_URL = 'https://leavemanagement-bn4n.onrender.com';
+
+function apiUrl(path) {
+    return `${API_BASE_URL}${path}`;
+}
+
 let userId = null;
 let adminToken = null;
 
-// Helper function to safely read API responses
+
+// ------------------------------
+// COMMON HELPER FUNCTIONS
+// ------------------------------
+
 async function readResponse(response) {
     try {
         return await response.json();
@@ -14,12 +25,14 @@ function clearFormFeedback(form) {
     form.querySelectorAll('.field-error').forEach((element) => {
         element.textContent = '';
     });
+
     form.querySelectorAll('.input-error').forEach((element) => {
         element.classList.remove('input-error');
         element.removeAttribute('aria-invalid');
     });
 
     const feedback = getFormFeedback(form);
+
     if (feedback) {
         feedback.textContent = '';
         feedback.classList.remove('success');
@@ -40,18 +53,22 @@ function getFormFeedback(form) {
 
 function showFormErrors(form, errors = {}, message = '') {
     clearFormFeedback(form);
+
     let hasFieldErrors = false;
 
     for (const [fieldName, errorMessage] of Object.entries(errors)) {
         const field = form.elements.namedItem(fieldName);
+
         if (!field || typeof field.classList === 'undefined') {
             continue;
         }
 
         field.classList.add('input-error');
         field.setAttribute('aria-invalid', 'true');
+
         const errorElement = [...form.querySelectorAll('.field-error')]
             .find((element) => element.dataset.errorFor === fieldName);
+
         if (errorElement) {
             errorElement.textContent = errorMessage;
             hasFieldErrors = true;
@@ -59,30 +76,42 @@ function showFormErrors(form, errors = {}, message = '') {
     }
 
     const feedback = getFormFeedback(form);
+
     if (feedback && message && (!hasFieldErrors || !Object.keys(errors).length)) {
         feedback.textContent = message;
     }
 }
+
+
+// ------------------------------
+// ADMIN VALIDATION
+// ------------------------------
 
 function validateAdminDetails(form, includeSetupKey = false) {
     const values = Object.fromEntries(new FormData(form));
     const errors = {};
 
     if (includeSetupKey && values.setupKey.length < 32) {
-        errors.setupKey = 'Setup key must be at least 32 characters. Use the ADMIN_SETUP_KEY configured on the server.';
+        errors.setupKey =
+            'Setup key must be at least 32 characters.';
     }
+
     if (!values.username.trim()) {
         errors.username = 'Enter an admin username.';
     }
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
         errors.email = 'Enter a valid email address.';
     }
+
     if (values.password.length < 8) {
         errors.password = 'Password must be at least 8 characters.';
     }
+
     if (!values.department.trim()) {
         errors.department = 'Enter a department.';
     }
+
     if (!values.designation.trim()) {
         errors.designation = 'Enter a designation.';
     }
@@ -95,48 +124,68 @@ function validateAdminDetails(form, includeSetupKey = false) {
     return values;
 }
 
+
 function mapServerError(form, data, context) {
     if (data.fieldErrors && typeof data.fieldErrors === 'object') {
         showFormErrors(form, data.fieldErrors, data.message);
         return;
     }
 
-    const message = data.message || 'Please check the highlighted information and try again.';
+    const message = data.message ||
+        'Please check the information and try again.';
+
     const lowerMessage = message.toLowerCase();
     const errors = {};
 
-    if (context === 'setup' && lowerMessage.includes('already been created')) {
+    if (context === 'setup' &&
+        lowerMessage.includes('already been created')) {
         showFormErrors(form, {}, message);
         return;
     }
 
-    if (context === 'setup' && lowerMessage.includes('setup key')) {
+    if (context === 'setup' &&
+        lowerMessage.includes('setup key')) {
         errors.setupKey = message;
-    } else if (context === 'setup' && lowerMessage.includes('not configured')) {
+    } else if (
+        context === 'setup' &&
+        lowerMessage.includes('not configured')
+    ) {
         showFormErrors(
             form,
             {},
-            'Admin setup is disabled. Set ADMIN_SESSION_SECRET and ADMIN_SETUP_KEY in the server terminal, then restart npm start.'
+            'Admin setup is disabled. Configure ADMIN_SESSION_SECRET and ADMIN_SETUP_KEY on Render.'
         );
         return;
-    } else if (context === 'setup' && lowerMessage.includes('server error')) {
+    } else if (
+        context === 'setup' &&
+        lowerMessage.includes('server error')
+    ) {
         showFormErrors(
             form,
             {},
-            'The server could not save the admin. Check the server terminal for its error and confirm MongoDB is running.'
+            'Server error. Check MongoDB and the server logs.'
         );
         return;
-    } else if (context === 'admin-login' && lowerMessage.includes('credentials')) {
+    } else if (
+        context === 'admin-login' &&
+        lowerMessage.includes('credentials')
+    ) {
         errors.username = 'Check the admin username.';
         errors.email = 'Check the admin email address.';
         errors.password = 'The username, email, or password is incorrect.';
-    } else if (lowerMessage.includes('already registered') || lowerMessage.includes('already exists') || lowerMessage.includes('already been')) {
+    } else if (
+        lowerMessage.includes('already registered') ||
+        lowerMessage.includes('already exists') ||
+        lowerMessage.includes('already been')
+    ) {
         if (form.elements.namedItem('email')) {
             errors.email = 'This email may already be registered.';
         }
+
         if (form.elements.namedItem('username')) {
             errors.username = 'This username may already be registered.';
         }
+
         if (form.elements.namedItem('rollNumber')) {
             errors.rollNumber = 'This roll number may already be registered.';
         }
@@ -153,19 +202,19 @@ function mapServerError(form, data, context) {
     showFormErrors(form, errors, message);
 }
 
+
 function getAdminSetupConnectionMessage() {
     if (window.location.protocol === 'file:') {
-        return 'This page was opened as a local file, so it cannot reach the API. Start the server with npm start and open http://localhost:5050.';
+        return 'Open the app using http://localhost:5050.';
     }
 
-    if (window.location.port && window.location.port !== '5050') {
-        return `This page is served from ${window.location.origin}, not the app server. Start the app with npm start and open http://localhost:5050.`;
-    }
-
-    return 'Cannot reach the admin setup API. Confirm the server is running with npm start, MongoDB is running, and open the app at http://localhost:5050.';
+    return 'Cannot reach the server. Check your internet connection and Render server.';
 }
 
-// Function to handle user registration
+
+// ------------------------------
+// STUDENT REGISTRATION
+// ------------------------------
 
 async function registerUser(event) {
     event.preventDefault();
@@ -173,35 +222,66 @@ async function registerUser(event) {
     const form = event.currentTarget;
     clearFormFeedback(form);
 
-    const username = document.getElementById('username').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const rollNumber = document.getElementById('roll-number').value.trim();
-    const department = document.getElementById('user-department').value.trim();
-    const casualLeave = Number(document.getElementById('casual-leave').value);
-    const medicalLeave = Number(document.getElementById('medical-leave').value);
-    const password = document.getElementById('student-reg-password').value;
+    const username =
+        document.getElementById('username').value.trim();
+
+    const email =
+        document.getElementById('reg-email').value.trim();
+
+    // Student registration password
+    const passwordField =
+        document.getElementById('student-reg-password');
+
+    const password = passwordField
+        ? passwordField.value
+        : '';
+
+    const rollNumber =
+        document.getElementById('roll-number').value.trim();
+
+    const department =
+        document.getElementById('user-department').value.trim();
+
+    const casualLeave =
+        Number(document.getElementById('casual-leave').value);
+
+    const medicalLeave =
+        Number(document.getElementById('medical-leave').value);
 
     const fieldErrors = {};
 
-    if (!username) fieldErrors.username = 'Enter a username.';
+    if (!username) {
+        fieldErrors.username = 'Enter a username.';
+    }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         fieldErrors.email = 'Enter a valid email address.';
     }
 
-    if (!rollNumber) fieldErrors.rollNumber = 'Enter a roll number.';
-    if (!department) fieldErrors.department = 'Enter a department.';
+    if (!passwordField) {
+        fieldErrors.password =
+            'Student password field is missing in HTML.';
+    } else if (password.length < 8) {
+        fieldErrors.password =
+            'Password must contain at least 8 characters.';
+    }
 
-    if (password.length < 8) {
-        fieldErrors.password = 'Password must be at least 8 characters.';
+    if (!rollNumber) {
+        fieldErrors.rollNumber = 'Enter a roll number.';
+    }
+
+    if (!department) {
+        fieldErrors.department = 'Enter a department.';
     }
 
     if (!Number.isSafeInteger(casualLeave) || casualLeave < 0) {
-        fieldErrors.casualLeave = 'Enter a valid casual leave balance.';
+        fieldErrors.casualLeave =
+            'Enter a valid casual leave balance.';
     }
 
     if (!Number.isSafeInteger(medicalLeave) || medicalLeave < 0) {
-        fieldErrors.medicalLeave = 'Enter a valid medical leave balance.';
+        fieldErrors.medicalLeave =
+            'Enter a valid medical leave balance.';
     }
 
     if (Object.keys(fieldErrors).length) {
@@ -210,7 +290,7 @@ async function registerUser(event) {
     }
 
     try {
-        const response = await fetch('/api/register', {
+        const response = await fetch(apiUrl('/api/register'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -218,18 +298,19 @@ async function registerUser(event) {
             body: JSON.stringify({
                 username,
                 email,
+                password,
                 rollNumber,
                 department,
                 casualLeave,
-                medicalLeave,
-                password
+                medicalLeave
             })
         });
 
         const data = await readResponse(response);
 
         if (response.ok) {
-            const messageElement = document.getElementById('registration-feedback');
+            const messageElement =
+                document.getElementById('registration-feedback');
 
             messageElement.innerText =
                 data.message || 'Registration successful! Please log in.';
@@ -238,24 +319,30 @@ async function registerUser(event) {
 
             form.reset();
 
-            document.getElementById('registration-section').style.display = 'none';
-            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('registration-section').style.display =
+                'none';
+
+            document.getElementById('login-section').style.display =
+                'block';
         } else {
             mapServerError(form, data, 'student-registration');
         }
 
     } catch (error) {
-        console.error('Error registering user:', error);
+        console.error('Registration error:', error);
 
         showFormErrors(
             form,
             {},
-            'Could not register the student. Check the server connection and try again.'
+            'Could not register. Check the server connection.'
         );
     }
 }
 
-// Function to handle user login
+
+// ------------------------------
+// STUDENT LOGIN
+// ------------------------------
 
 async function loginUser(event) {
     event.preventDefault();
@@ -263,16 +350,25 @@ async function loginUser(event) {
     const form = event.currentTarget;
     clearFormFeedback(form);
 
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('student-password').value;
+    const email =
+        document.getElementById('email').value.trim();
+
+    const passwordField =
+        document.getElementById('student-password');
+
+    const password = passwordField
+        ? passwordField.value
+        : '';
 
     const errors = {};
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        errors.email = 'Enter a valid student email address.';
+        errors.email = 'Enter a valid email address.';
     }
 
-    if (!password) {
+    if (!passwordField) {
+        errors.password = 'Student password field is missing.';
+    } else if (!password) {
         errors.password = 'Enter your password.';
     }
 
@@ -282,7 +378,7 @@ async function loginUser(event) {
     }
 
     try {
-        const response = await fetch('/api/login', {
+        const response = await fetch(apiUrl('/api/login'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -298,8 +394,7 @@ async function loginUser(event) {
         if (!response.ok) {
             showFormErrors(
                 form,
-                {},
-                data.message || 'Invalid email or password.'
+                { password: data.message || 'Incorrect email or password.' }
             );
             return;
         }
@@ -308,7 +403,7 @@ async function loginUser(event) {
             showFormErrors(
                 form,
                 {},
-                'Login failed. User ID was not returned.'
+                'Server did not return a student ID. Please try again.'
             );
             return;
         }
@@ -327,16 +422,25 @@ async function loginUser(event) {
         document.getElementById('medical-leave-display').innerText =
             data.medicalLeave ?? 0;
 
-        document.getElementById('balance-section').style.display = 'block';
-        document.getElementById('apply-leave-section').style.display = 'block';
-        document.getElementById('login-section').style.display = 'none';
-        document.getElementById('registration-section').style.display = 'none';
-        document.getElementById('logout-button').style.display = 'block';
+        document.getElementById('balance-section').style.display =
+            'block';
+
+        document.getElementById('apply-leave-section').style.display =
+            'block';
+
+        document.getElementById('login-section').style.display =
+            'none';
+
+        document.getElementById('registration-section').style.display =
+            'none';
+
+        document.getElementById('logout-button').style.display =
+            'block';
 
         renderStudentLeaveRequests(data.leaveRequests);
 
         document.getElementById('response-message').innerText =
-            data.message || 'Student login successful.';
+            data.message || 'Login successful.';
 
         form.reset();
 
@@ -351,32 +455,58 @@ async function loginUser(event) {
     }
 }
 
+
+// ------------------------------
+// ADMIN LOGIN
+// ------------------------------
+
 async function loginAdmin(event) {
     event.preventDefault();
+
     const form = event.currentTarget;
     clearFormFeedback(form);
 
-    const email = document.getElementById('admin-email').value.trim();
-    const username = document.getElementById('admin-login-username').value.trim();
-    const password = document.getElementById('admin-password').value;
+    const email =
+        document.getElementById('admin-email').value.trim();
+
+    const username =
+        document.getElementById('admin-login-username').value.trim();
+
+    const password =
+        document.getElementById('admin-password').value;
 
     const errors = {};
-    if (!username) errors.username = 'Enter your admin username.';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Enter a valid admin email address.';
-    if (!password) errors.password = 'Enter your admin password.';
+
+    if (!username) {
+        errors.username = 'Enter your admin username.';
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.email = 'Enter a valid admin email.';
+    }
+
+    if (!password) {
+        errors.password = 'Enter your admin password.';
+    }
+
     if (Object.keys(errors).length) {
         showFormErrors(form, errors);
         return;
     }
 
     try {
-        const response = await fetch('/api/admin/login', {
+        const response = await fetch(apiUrl('/api/admin/login'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ username, email, password })
+            body: JSON.stringify({
+                username,
+                email,
+                password
+            })
         });
+
         const data = await readResponse(response);
 
         if (!response.ok) {
@@ -385,32 +515,60 @@ async function loginAdmin(event) {
         }
 
         if (typeof data.token !== 'string' || !data.token) {
-            showFormErrors(form, {}, 'Admin login failed because the server did not return a session. Please try again.');
+            showFormErrors(
+                form,
+                {},
+                'Admin login failed. Server did not return a session.'
+            );
             return;
         }
 
         adminToken = data.token;
-        document.getElementById('admin-login-form').reset();
+
+        form.reset();
+
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('registration-section').style.display = 'none';
         document.getElementById('admin-login-section').style.display = 'none';
         document.getElementById('balance-section').style.display = 'none';
         document.getElementById('apply-leave-section').style.display = 'none';
+
         document.getElementById('admin-dashboard').style.display = 'block';
+
         document.getElementById('admin-profile').innerText =
             `${data.admin.username} — ${data.admin.department} (${data.admin.designation})`;
-        document.getElementById('response-message').innerText = data.message || 'Admin login successful.';
-        await Promise.all([loadAdminUsers(), loadAdminLeaveRequests()]);
+
+        document.getElementById('response-message').innerText =
+            data.message || 'Admin login successful.';
+
+        await Promise.all([
+            loadAdminUsers(),
+            loadAdminLeaveRequests()
+        ]);
+
     } catch (error) {
-        console.error('Error during admin login:', error);
-        showFormErrors(form, {}, 'Could not log in as admin. Check the server connection and try again.');
+        console.error('Admin login error:', error);
+
+        showFormErrors(
+            form,
+            {},
+            'Could not log in as admin. Check the server connection.'
+        );
     }
 }
 
+
+// ------------------------------
+// INITIAL ADMIN SETUP
+// ------------------------------
+
 async function createInitialAdmin(event) {
     event.preventDefault();
+
     const form = document.getElementById('admin-setup-form');
+
     clearFormFeedback(form);
+
     const details = validateAdminDetails(form, true);
 
     if (!details) {
@@ -418,54 +576,88 @@ async function createInitialAdmin(event) {
     }
 
     try {
-        const response = await fetch('/api/admin/setup', {
+        const response = await fetch(apiUrl('/api/admin/setup'), {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(details)
         });
+
         const data = await readResponse(response);
 
         if (response.ok) {
-            document.getElementById('response-message').innerText = data.message || 'Admin account created. You can now sign in.';
-            document.getElementById('response-message').classList.add('success');
+            document.getElementById('response-message').innerText =
+                data.message || 'Admin account created successfully.';
+
+            document.getElementById('response-message')
+                .classList.add('success');
+
             form.reset();
-            document.getElementById('show-admin-setup').style.display = 'none';
+
+            document.getElementById('show-admin-setup').style.display =
+                'none';
+
             showAdminLogin();
+
         } else {
             mapServerError(form, data, 'setup');
         }
+
     } catch (error) {
-        console.error('Error creating initial admin:', error);
-        showFormErrors(form, {}, getAdminSetupConnectionMessage());
+        console.error('Admin setup error:', error);
+
+        showFormErrors(
+            form,
+            {},
+            getAdminSetupConnectionMessage()
+        );
     }
 }
 
+
 async function checkAdminSetupStatus() {
-    const setupButton = document.getElementById('show-admin-setup');
-    const statusElement = document.getElementById('admin-setup-status');
+    const setupButton =
+        document.getElementById('show-admin-setup');
+
+    const statusElement =
+        document.getElementById('admin-setup-status');
 
     try {
-        const response = await fetch('/api/admin/setup-status');
+        const response =
+            await fetch(apiUrl('/api/admin/setup-status'));
+
         const data = await readResponse(response);
 
         if (response.ok && data.available === false) {
             setupButton.style.display = 'none';
+
             statusElement.innerText =
                 'Initial admin is already created. Select Admin Login to sign in.';
+
             return;
         }
 
         setupButton.style.display = 'inline-block';
+
         statusElement.innerText = response.ok
             ? ''
-            : `${data.message || 'Admin setup status is unavailable.'} Set ADMIN_SESSION_SECRET and ADMIN_SETUP_KEY in the server terminal, then restart npm start.`;
+            : data.message || 'Admin setup status is unavailable.';
+
     } catch (error) {
-        console.error('Error checking admin setup status:', error);
+        console.error('Admin setup status error:', error);
+
         setupButton.style.display = 'inline-block';
+
         statusElement.innerText =
-            'Could not check admin setup. Ensure the server is running, configure ADMIN_SESSION_SECRET and ADMIN_SETUP_KEY, then restart npm start.';
+            'Could not check admin setup. Check the server connection.';
     }
 }
+
+
+// ------------------------------
+// ADMIN API HELPER
+// ------------------------------
 
 async function adminRequest(url, options = {}) {
     const headers = {
@@ -477,45 +669,77 @@ async function adminRequest(url, options = {}) {
         headers['Content-Type'] = 'application/json';
     }
 
-    const response = await fetch(url, { ...options, headers });
+    const response = await fetch(apiUrl(url), {
+        ...options,
+        headers
+    });
+
     const data = await readResponse(response);
 
     if (response.status === 401) {
         logoutAdmin();
     }
 
-    return { response, data };
+    return {
+        response,
+        data
+    };
 }
 
+
+// ------------------------------
+// LOAD STUDENTS IN ADMIN DASHBOARD
+// ------------------------------
+
 async function loadAdminUsers() {
-    const messageElement = document.getElementById('admin-response-message');
+    const messageElement =
+        document.getElementById('admin-response-message');
 
     try {
-        const { response, data } = await adminRequest('/api/admin/users');
+        const { response, data } =
+            await adminRequest('/api/admin/users');
 
         if (!response.ok) {
-            messageElement.innerText = data.message || 'Error loading users.';
+            messageElement.innerText =
+                data.message || 'Error loading students.';
             return;
         }
 
-        renderAdminUsers(data.users);
-        messageElement.innerText = `${data.users.length} user(s) loaded.`;
+        renderAdminUsers(data.users || []);
+
+        messageElement.innerText =
+            `${data.users.length} student(s) loaded.`;
+
     } catch (error) {
-        console.error('Error loading admin users:', error);
-        messageElement.innerText = 'Server error. Please try again.';
+        console.error('Loading students error:', error);
+
+        messageElement.innerText =
+            'Server error. Please try again.';
     }
 }
 
+
 async function refreshAdminDashboard() {
-    await Promise.all([loadAdminUsers(), loadAdminLeaveRequests()]);
+    await Promise.all([
+        loadAdminUsers(),
+        loadAdminLeaveRequests()
+    ]);
 }
 
+
+// ------------------------------
+// DISPLAY STUDENTS IN ADMIN TABLE
+// ------------------------------
+
 function renderAdminUsers(users) {
-    const tableBody = document.getElementById('admin-users');
+    const tableBody =
+        document.getElementById('admin-users');
+
     tableBody.replaceChildren();
 
     for (const user of users) {
         const row = document.createElement('tr');
+
         row.dataset.userId = user._id;
 
         const fields = [
@@ -529,10 +753,13 @@ function renderAdminUsers(users) {
 
         for (const [field, value, type] of fields) {
             const cell = document.createElement('td');
+
             const input = document.createElement('input');
+
             input.className = `user-${field}`;
             input.type = type;
-            input.value = value;
+            input.value = value ?? '';
+
             input.setAttribute('aria-label', field);
 
             if (type === 'number') {
@@ -545,23 +772,33 @@ function renderAdminUsers(users) {
         }
 
         const actions = document.createElement('td');
+
         const saveButton = document.createElement('button');
+
         saveButton.type = 'button';
         saveButton.className = 'btn table-action';
         saveButton.dataset.action = 'save';
         saveButton.innerText = 'Save';
 
         const deleteButton = document.createElement('button');
+
         deleteButton.type = 'button';
         deleteButton.className = 'btn table-action delete-button';
         deleteButton.dataset.action = 'delete';
         deleteButton.innerText = 'Delete';
 
         actions.append(saveButton, deleteButton);
+
         row.append(actions);
+
         tableBody.append(row);
     }
 }
+
+
+// ------------------------------
+// ADMIN UPDATE / DELETE STUDENT
+// ------------------------------
 
 async function manageAdminUser(event) {
     const button = event.target.closest('button[data-action]');
@@ -571,28 +808,37 @@ async function manageAdminUser(event) {
     }
 
     const row = button.closest('tr');
-    const userId = row.dataset.userId;
-    const messageElement = document.getElementById('admin-response-message');
+
+    const selectedUserId = row.dataset.userId;
+
+    const messageElement =
+        document.getElementById('admin-response-message');
 
     if (button.dataset.action === 'delete') {
-        if (!window.confirm('Delete this user and their leave balances?')) {
+        if (!window.confirm('Delete this student and their leave balances?')) {
             return;
         }
 
         try {
             const { response, data } = await adminRequest(
-                `/api/admin/users/${encodeURIComponent(userId)}`,
-                { method: 'DELETE' }
+                `/api/admin/users/${encodeURIComponent(selectedUserId)}`,
+                {
+                    method: 'DELETE'
+                }
             );
 
-            messageElement.innerText = data.message || 'Error deleting user.';
+            messageElement.innerText =
+                data.message || 'Error deleting student.';
 
             if (response.ok) {
                 await loadAdminUsers();
             }
+
         } catch (error) {
-            console.error('Error deleting user:', error);
-            messageElement.innerText = 'Server error. Please try again.';
+            console.error('Delete student error:', error);
+
+            messageElement.innerText =
+                'Server error. Please try again.';
         }
 
         return;
@@ -617,130 +863,223 @@ async function manageAdminUser(event) {
         updates.casualLeave < 0 ||
         updates.medicalLeave < 0
     ) {
-        messageElement.innerText = 'Enter valid user details and leave balances.';
+        messageElement.innerText =
+            'Enter valid student details and leave balances.';
         return;
     }
 
     try {
         const { response, data } = await adminRequest(
-            `/api/admin/users/${encodeURIComponent(userId)}`,
+            `/api/admin/users/${encodeURIComponent(selectedUserId)}`,
             {
                 method: 'PATCH',
                 body: JSON.stringify(updates)
             }
         );
 
-        messageElement.innerText = data.message || 'Error updating user.';
+        messageElement.innerText =
+            data.message || 'Error updating student.';
 
         if (response.ok) {
             await loadAdminUsers();
         }
+
     } catch (error) {
-        console.error('Error updating user:', error);
-        messageElement.innerText = 'Server error. Please try again.';
+        console.error('Update student error:', error);
+
+        messageElement.innerText =
+            'Server error. Please try again.';
     }
 }
+
+
+// ------------------------------
+// TABLE HELPER
+// ------------------------------
 
 function addTableCell(row, value, label = '') {
     const cell = document.createElement('td');
-    cell.textContent = value == null ? '' : String(value);
+
+    cell.textContent =
+        value == null ? '' : String(value);
+
     if (label) {
         cell.dataset.label = label;
     }
+
     row.append(cell);
+
     return cell;
 }
 
+
+// ------------------------------
+// STUDENT LEAVE REQUESTS
+// ------------------------------
+
 function renderStudentLeaveRequests(requests = []) {
-    const tableBody = document.getElementById('student-leave-requests');
+    const tableBody =
+        document.getElementById('student-leave-requests');
+
     tableBody.replaceChildren();
 
     for (const request of requests) {
         const row = document.createElement('tr');
+
         addTableCell(row, request.type, 'Type');
         addTableCell(row, request.days, 'Days');
         addTableCell(row, request.reason, 'Reason');
-        addTableCell(row, new Date(request.createdAt).toLocaleString(), 'Submitted');
+
+        addTableCell(
+            row,
+            request.createdAt
+                ? new Date(request.createdAt).toLocaleString()
+                : '',
+            'Submitted'
+        );
+
         addTableCell(row, request.status, 'Status');
         addTableCell(row, request.reviewNote, 'Admin note');
+
         tableBody.append(row);
     }
 }
 
+
+// ------------------------------
+// LOAD LEAVE REQUESTS FOR ADMIN
+// ------------------------------
+
 async function loadAdminLeaveRequests() {
-    const messageElement = document.getElementById('admin-response-message');
+    const messageElement =
+        document.getElementById('admin-response-message');
 
     try {
-        const { response, data } = await adminRequest('/api/admin/leave-requests');
+        const { response, data } =
+            await adminRequest('/api/admin/leave-requests');
 
         if (!response.ok) {
-            messageElement.innerText = data.message || 'Error loading leave requests.';
+            messageElement.innerText =
+                data.message || 'Error loading leave requests.';
             return;
         }
 
-        renderAdminLeaveRequests(data.requests);
+        renderAdminLeaveRequests(data.requests || []);
+
     } catch (error) {
-        console.error('Error loading leave requests:', error);
-        messageElement.innerText = 'Server error. Please try again.';
+        console.error('Loading leave requests error:', error);
+
+        messageElement.innerText =
+            'Server error. Please try again.';
     }
 }
 
+
+// ------------------------------
+// DISPLAY LEAVE REQUESTS IN ADMIN
+// ------------------------------
+
 function renderAdminLeaveRequests(requests = []) {
-    const tableBody = document.getElementById('admin-leave-requests');
+    const tableBody =
+        document.getElementById('admin-leave-requests');
+
     tableBody.replaceChildren();
 
     for (const request of requests) {
         const row = document.createElement('tr');
+
         row.dataset.userId = request.userId;
         row.dataset.requestId = request.id;
-        addTableCell(row, `${request.username} (${request.rollNumber})`, 'Student');
+
+        addTableCell(
+            row,
+            `${request.username} (${request.rollNumber})`,
+            'Student'
+        );
+
         addTableCell(row, request.department, 'Department');
         addTableCell(row, request.type, 'Leave type');
         addTableCell(row, request.days, 'Days requested');
         addTableCell(row, request.reason, 'Reason');
-        addTableCell(row, new Date(request.createdAt).toLocaleString(), 'Submitted');
+
+        addTableCell(
+            row,
+            request.createdAt
+                ? new Date(request.createdAt).toLocaleString()
+                : '',
+            'Submitted'
+        );
+
         addTableCell(row, request.status, 'Status');
 
         const noteCell = document.createElement('td');
+
         const note = document.createElement('input');
+
         note.type = 'text';
         note.maxLength = 500;
         note.placeholder = 'Optional note';
         note.value = request.reviewNote || '';
+
         note.setAttribute('aria-label', 'Admin review note');
+
         noteCell.dataset.label = 'Admin note';
         noteCell.append(note);
+
         row.append(noteCell);
 
         const actions = document.createElement('td');
+
         actions.dataset.label = 'Actions';
+
         if (request.status === 'pending') {
             for (const action of ['approve', 'disapprove']) {
                 const button = document.createElement('button');
+
                 button.type = 'button';
-                button.className = `btn table-action ${action === 'disapprove' ? 'delete-button' : ''}`;
+
+                button.className =
+                    `btn table-action ${action === 'disapprove' ? 'delete-button' : ''}`;
+
                 button.dataset.action = action;
-                button.textContent = action === 'approve' ? 'Approve' : 'Disapprove';
+
+                button.textContent =
+                    action === 'approve' ? 'Approve' : 'Disapprove';
+
                 actions.append(button);
             }
         } else {
-            actions.textContent = `Request ${request.status}.`;
+            actions.textContent =
+                `Request ${request.status}.`;
         }
 
         row.append(actions);
+
         const feedbackCell = document.createElement('td');
+
         feedbackCell.colSpan = 9;
+
         const feedback = document.createElement('span');
+
         feedback.className = 'leave-action-feedback';
         feedback.setAttribute('role', 'status');
+
         feedbackCell.append(feedback);
+
         const feedbackRow = document.createElement('tr');
+
         feedbackRow.className = 'leave-feedback-row';
         feedbackRow.append(feedbackCell);
+
         tableBody.append(row);
         tableBody.append(feedbackRow);
     }
 }
+
+
+// ------------------------------
+// ADMIN APPROVE / REJECT LEAVE
+// ------------------------------
 
 async function reviewLeaveRequest(event) {
     const button = event.target.closest('button[data-action]');
@@ -750,20 +1089,29 @@ async function reviewLeaveRequest(event) {
     }
 
     const row = button.closest('tr');
-    const messageElement = document.getElementById('admin-response-message');
+
+    const messageElement =
+        document.getElementById('admin-response-message');
+
     const feedbackRow = row.nextElementSibling;
-    const feedback = feedbackRow && feedbackRow.querySelector('.leave-action-feedback');
+
+    const feedback = feedbackRow
+        ? feedbackRow.querySelector('.leave-action-feedback')
+        : null;
+
     const action = button.dataset.action;
 
     if (feedback) {
-        feedback.textContent = action === 'approve'
-            ? 'Approving leave request...'
-            : 'Disapproving leave request...';
+        feedback.textContent =
+            action === 'approve'
+                ? 'Approving leave request...'
+                : 'Rejecting leave request...';
+
         feedback.classList.remove('error');
     }
 
-    row.querySelectorAll('button[data-action]').forEach((actionButton) => {
-        actionButton.disabled = true;
+    row.querySelectorAll('button[data-action]').forEach((item) => {
+        item.disabled = true;
     });
 
     try {
@@ -779,44 +1127,68 @@ async function reviewLeaveRequest(event) {
         );
 
         if (!response.ok) {
+            const errorMessage =
+                data.message || 'Could not update this leave request.';
+
             if (feedback) {
-                feedback.textContent = data.message || 'Could not update this leave request.';
+                feedback.textContent = errorMessage;
                 feedback.classList.add('error');
             }
-            messageElement.innerText = data.message || 'Could not update this leave request.';
-            row.querySelectorAll('button[data-action]').forEach((actionButton) => {
-                actionButton.disabled = false;
+
+            messageElement.innerText = errorMessage;
+
+            row.querySelectorAll('button[data-action]').forEach((item) => {
+                item.disabled = false;
             });
+
             return;
         }
 
         if (feedback) {
-            feedback.textContent = data.message || 'Leave request updated.';
+            feedback.textContent =
+                data.message || 'Leave request updated.';
         }
-        messageElement.innerText = data.message || 'Leave request updated.';
 
-        if (response.ok) {
-            await Promise.all([loadAdminUsers(), loadAdminLeaveRequests()]);
-            messageElement.innerText = data.message || 'Leave request updated.';
-        }
+        messageElement.innerText =
+            data.message || 'Leave request updated.';
+
+        await Promise.all([
+            loadAdminUsers(),
+            loadAdminLeaveRequests()
+        ]);
+
     } catch (error) {
-        console.error('Error reviewing leave request:', error);
-        const errorMessage = 'Could not reach the server. Check your connection and try again.';
+        console.error('Review leave error:', error);
+
+        const errorMessage =
+            'Could not reach the server. Try again.';
+
         if (feedback) {
             feedback.textContent = errorMessage;
             feedback.classList.add('error');
         }
+
         messageElement.innerText = errorMessage;
-        row.querySelectorAll('button[data-action]').forEach((actionButton) => {
-            actionButton.disabled = false;
+
+        row.querySelectorAll('button[data-action]').forEach((item) => {
+            item.disabled = false;
         });
     }
 }
 
+
+// ------------------------------
+// CREATE DEPARTMENT ADMIN
+// ------------------------------
+
 async function createDepartmentAdmin(event) {
     event.preventDefault();
-    const form = document.getElementById('create-admin-form');
+
+    const form =
+        document.getElementById('create-admin-form');
+
     clearFormFeedback(form);
+
     const details = validateAdminDetails(form);
 
     if (!details) {
@@ -824,62 +1196,109 @@ async function createDepartmentAdmin(event) {
     }
 
     try {
-        const { response, data } = await adminRequest('/api/admin/admins', {
-            method: 'POST',
-            body: JSON.stringify(details)
-        });
+        const { response, data } = await adminRequest(
+            '/api/admin/admins',
+            {
+                method: 'POST',
+                body: JSON.stringify(details)
+            }
+        );
 
         if (response.ok) {
-            document.getElementById('create-admin-feedback').textContent =
+            const feedback =
+                document.getElementById('create-admin-feedback');
+
+            feedback.textContent =
                 data.message || 'Admin account created successfully.';
-            document.getElementById('create-admin-feedback').classList.add('success');
+
+            feedback.classList.add('success');
+
             form.reset();
+
         } else {
             mapServerError(form, data, 'create-admin');
         }
+
     } catch (error) {
-        console.error('Error creating department admin:', error);
-        showFormErrors(form, {}, 'Could not create the department admin. Check the server connection and try again.');
+        console.error('Create admin error:', error);
+
+        showFormErrors(
+            form,
+            {},
+            'Could not create admin. Check the server connection.'
+        );
     }
 }
 
+
+// ------------------------------
+// ADMIN LOGOUT
+// ------------------------------
+
 function logoutAdmin() {
     adminToken = null;
+
     document.getElementById('admin-dashboard').style.display = 'none';
     document.getElementById('admin-login-section').style.display = 'none';
+
     document.getElementById('login-section').style.display = 'block';
     document.getElementById('registration-section').style.display = 'none';
+
     document.getElementById('admin-users').replaceChildren();
+
     document.getElementById('admin-leave-requests').replaceChildren();
+
     document.getElementById('admin-response-message').innerText = '';
+
     document.getElementById('admin-profile').innerText = '';
 }
 
-// Function to handle user logout
+
+// ------------------------------
+// STUDENT LOGOUT
+// ------------------------------
+
 function logoutUser() {
     userId = null;
 
     document.getElementById('balance-section').style.display = 'none';
+
     document.getElementById('apply-leave-section').style.display = 'none';
+
     document.getElementById('logout-button').style.display = 'none';
+
     document.getElementById('login-section').style.display = 'block';
+
     document.getElementById('registration-section').style.display = 'none';
+
     document.getElementById('admin-setup-section').style.display = 'none';
+
     document.getElementById('student-leave-requests').replaceChildren();
 
     document.getElementById('response-message').innerText = '';
-    document.getElementById('registration-response').innerText = '';
+
+    const registrationFeedback =
+        document.getElementById('registration-feedback');
+
+    if (registrationFeedback) {
+        registrationFeedback.innerText = '';
+    }
 
     document.getElementById('username-display').innerText = '';
     document.getElementById('roll-number-display').innerText = '';
-    document.getElementById('casual-leave-display').innerText = 'Loading...';
-    document.getElementById('medical-leave-display').innerText = 'Loading...';
+
+    document.getElementById('casual-leave-display').innerText = '0';
+    document.getElementById('medical-leave-display').innerText = '0';
 
     document.getElementById('login-form').reset();
     document.getElementById('leave-form').reset();
 }
 
-// Function to refresh leave balance
+
+// ------------------------------
+// REFRESH STUDENT LEAVE BALANCE
+// ------------------------------
+
 async function refreshLeaveBalance() {
     if (userId == null) {
         document.getElementById('response-message').innerText =
@@ -889,7 +1308,7 @@ async function refreshLeaveBalance() {
 
     try {
         const response = await fetch(
-            `/api/leave-balance/${encodeURIComponent(userId)}`
+            apiUrl(`/api/leave-balance/${encodeURIComponent(userId)}`)
         );
 
         const data = await readResponse(response);
@@ -897,23 +1316,33 @@ async function refreshLeaveBalance() {
         if (response.ok) {
             document.getElementById('casual-leave-display').innerText =
                 data.casualLeave ?? 0;
+
             document.getElementById('medical-leave-display').innerText =
                 data.medicalLeave ?? 0;
+
             renderStudentLeaveRequests(data.leaveRequests);
+
             document.getElementById('response-message').innerText =
                 data.message || 'Leave balance updated.';
+
         } else {
             document.getElementById('response-message').innerText =
                 data.message || 'Error fetching leave balance.';
         }
+
     } catch (error) {
-        console.error('Error refreshing balance:', error);
+        console.error('Refresh balance error:', error);
+
         document.getElementById('response-message').innerText =
             'Server error. Please try again.';
     }
 }
 
-// Function to apply for leave
+
+// ------------------------------
+// APPLY FOR LEAVE
+// ------------------------------
+
 async function applyLeave(event) {
     event.preventDefault();
 
@@ -923,26 +1352,37 @@ async function applyLeave(event) {
         return;
     }
 
-    const type = document.getElementById('leave-type').value;
-    const days = Number(document.getElementById('leave-days').value);
-    const reason = document.getElementById('leave-reason').value.trim();
-    const messageElement = document.getElementById('response-message');
+    const type =
+        document.getElementById('leave-type').value;
+
+    const days =
+        Number(document.getElementById('leave-days').value);
+
+    const reason =
+        document.getElementById('leave-reason').value.trim();
+
+    const messageElement =
+        document.getElementById('response-message');
 
     if (!type || !Number.isInteger(days) || days <= 0 || !reason) {
         messageElement.innerText =
-            'Please select a leave type, enter valid days, and provide a reason.';
+            'Select leave type, enter valid days, and provide a reason.';
         return;
     }
 
     try {
         const response = await fetch(
-            `/api/apply-leave/${encodeURIComponent(userId)}`,
+            apiUrl(`/api/apply-leave/${encodeURIComponent(userId)}`),
             {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ type, days, reason })
+                body: JSON.stringify({
+                    type,
+                    days,
+                    reason
+                })
             }
         );
 
@@ -951,56 +1391,85 @@ async function applyLeave(event) {
         if (response.ok) {
             document.getElementById('casual-leave-display').innerText =
                 data.casualLeave ?? 0;
+
             document.getElementById('medical-leave-display').innerText =
                 data.medicalLeave ?? 0;
+
             renderStudentLeaveRequests(data.leaveRequests);
 
             messageElement.innerText =
                 data.message || 'Leave request submitted for admin review.';
 
             document.getElementById('leave-form').reset();
+
         } else {
             messageElement.innerText =
                 data.message || 'Error applying for leave.';
         }
+
     } catch (error) {
-        console.error('Error applying for leave:', error);
-        messageElement.innerText = 'Server error. Please try again.';
+        console.error('Apply leave error:', error);
+
+        messageElement.innerText =
+            'Server error. Please try again.';
     }
 }
 
-// Show the login section
+
+// ------------------------------
+// SHOW / HIDE SECTIONS
+// ------------------------------
+
 function showLogin() {
     document.getElementById('login-section').style.display = 'block';
+
     document.getElementById('registration-section').style.display = 'none';
+
     document.getElementById('admin-login-section').style.display = 'none';
+
     document.getElementById('admin-setup-section').style.display = 'none';
 }
 
-// Show the registration section
+
 function showRegistration() {
     document.getElementById('registration-section').style.display = 'block';
+
     document.getElementById('login-section').style.display = 'none';
+
     document.getElementById('admin-login-section').style.display = 'none';
+
     document.getElementById('admin-setup-section').style.display = 'none';
 }
+
 
 function showAdminLogin() {
     document.getElementById('admin-login-section').style.display = 'block';
+
     document.getElementById('login-section').style.display = 'none';
+
     document.getElementById('registration-section').style.display = 'none';
+
     document.getElementById('admin-setup-section').style.display = 'none';
 }
 
+
 function showAdminSetup() {
     document.getElementById('admin-setup-section').style.display = 'block';
+
     document.getElementById('admin-login-section').style.display = 'none';
+
     document.getElementById('login-section').style.display = 'none';
+
     document.getElementById('registration-section').style.display = 'none';
 }
 
-// Register event listeners after the HTML has loaded
+
+// ------------------------------
+// EVENT LISTENERS
+// ------------------------------
+
 document.addEventListener('DOMContentLoaded', () => {
+
     document.getElementById('registration-form')
         .addEventListener('submit', registerUser);
 
@@ -1055,17 +1524,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('create-admin-form')
         .addEventListener('submit', createDepartmentAdmin);
 
+
+    // Clear field errors when the user types
     for (const form of document.querySelectorAll('form')) {
+
         form.addEventListener('input', (event) => {
+
             const field = event.target;
+
             if (!field.name) {
                 return;
             }
 
             field.classList.remove('input-error');
+
             field.removeAttribute('aria-invalid');
+
             const errorElement = [...form.querySelectorAll('.field-error')]
                 .find((element) => element.dataset.errorFor === field.name);
+
             if (errorElement) {
                 errorElement.textContent = '';
             }
