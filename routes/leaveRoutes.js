@@ -727,7 +727,7 @@ router.get('/leave-balance/:id', async (req, res) => {
 
 // Leave balances are deducted only when an admin approves a pending request.
 router.post('/apply-leave/:id', async (req, res) => {
-    const { type, days, reason } = req.body || {};
+    const { type, days, reason, startDate, endDate } = req.body || {};
 
     try {
         if (!isValidUserId(req.params.id)) {
@@ -742,6 +742,20 @@ router.post('/apply-leave/:id', async (req, res) => {
                 message: 'Invalid leave type.'
             });
         }
+
+        // Validate start and end dates
+        if (
+            !startDate ||
+            !endDate ||
+            isNaN(Date.parse(startDate)) ||
+            isNaN(Date.parse(endDate)) ||
+            new Date(endDate) < new Date(startDate)
+        ) {
+            return res.status(400).json({
+                message: 'Please enter valid leave start and end dates.'
+            });
+        }
+
 
         // Require a positive integer
         if (
