@@ -911,7 +911,38 @@ function addTableCell(row, value, label = '') {
 
     return cell;
 }
+// ------------------------------
+// LEAVE DATE HELPERS
+// ------------------------------
 
+function formatLeaveDate(date) {
+    if (!date) return '';
+
+    return String(date).slice(0, 10).split('-').reverse().join('/');
+}
+
+function updateLeaveDays() {
+    const startDate = document.getElementById('leave-start-date').value;
+    const endDate = document.getElementById('leave-end-date').value;
+    const daysField = document.getElementById('leave-days');
+
+    if (!startDate || !endDate) {
+        daysField.value = '';
+        return;
+    }
+
+    const start = new Date(startDate + 'T00:00:00Z');
+    const end = new Date(endDate + 'T00:00:00Z');
+
+    if (end < start) {
+        daysField.value = '';
+        return;
+    }
+
+    const difference = (end - start) / (1000 * 60 * 60 * 24);
+
+    daysField.value = difference + 1;
+}
 
 // ------------------------------
 // STUDENT LEAVE REQUESTS
@@ -927,6 +958,8 @@ function renderStudentLeaveRequests(requests = []) {
         const row = document.createElement('tr');
 
         addTableCell(row, request.type, 'Type');
+        addTableCell(row, formatLeaveDate(request.startDate), 'Start Date');
+        addTableCell(row, formatLeaveDate(request.endDate), 'End Date');
         addTableCell(row, request.days, 'Days');
         addTableCell(row, request.reason, 'Reason');
 
@@ -999,6 +1032,8 @@ function renderAdminLeaveRequests(requests = []) {
 
         addTableCell(row, request.department, 'Department');
         addTableCell(row, request.type, 'Leave type');
+        addTableCell(row, formatLeaveDate(request.startDate), 'Start Date');
+        addTableCell(row, formatLeaveDate(request.endDate), 'End Date');
         addTableCell(row, request.days, 'Days requested');
         addTableCell(row, request.reason, 'Reason');
 
@@ -1057,7 +1092,7 @@ function renderAdminLeaveRequests(requests = []) {
 
         const feedbackCell = document.createElement('td');
 
-        feedbackCell.colSpan = 9;
+        feedbackCell.colSpan = 11;
 
         const feedback = document.createElement('span');
 
@@ -1354,6 +1389,11 @@ async function applyLeave(event) {
 
     const type =
         document.getElementById('leave-type').value;
+    const startDate =
+        document.getElementById('leave-start-date').value;
+
+    const endDate =
+        document.getElementById('leave-end-date').value;
 
     const days =
         Number(document.getElementById('leave-days').value);
@@ -1363,12 +1403,15 @@ async function applyLeave(event) {
 
     const messageElement =
         document.getElementById('response-message');
+if (!type || !startDate || !endDate ||
+    endDate < startDate ||
+    !Number.isInteger(days) || days <= 0 || !reason) {
 
-    if (!type || !Number.isInteger(days) || days <= 0 || !reason) {
-        messageElement.innerText =
-            'Select leave type, enter valid days, and provide a reason.';
-        return;
-    }
+    messageElement.innerText =
+        'Select leave type, valid start and end dates, and provide a reason.';
+    return;
+}
+    
 
     try {
         const response = await fetch(
@@ -1380,6 +1423,8 @@ async function applyLeave(event) {
                 },
                 body: JSON.stringify({
                     type,
+                    startDate,
+                    endDate,
                     days,
                     reason
                 })
@@ -1490,6 +1535,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('leave-form')
         .addEventListener('submit', applyLeave);
+    document.getElementById('leave-start-date')
+        .addEventListener('change', updateLeaveDays);
+
+    document.getElementById('leave-end-date')
+        .addEventListener('change', updateLeaveDays);
 
     document.getElementById('show-login')
         .addEventListener('click', showLogin);
