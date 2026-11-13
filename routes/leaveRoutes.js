@@ -787,6 +787,8 @@ router.post('/apply-leave/:id', async (req, res) => {
                     leaveRequests: {
                         type,
                         days,
+                        startDate: new Date(startDate + 'T00:00:00.000Z'),
+                        endDate: new Date(endDate + 'T00:00:00.000Z'),
                         reason: reason.trim(),
                         status: 'pending'
                     }
