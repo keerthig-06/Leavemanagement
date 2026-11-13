@@ -509,6 +509,8 @@ router.get('/admin/leave-requests', async (req, res) => {
                     department: user.department,
                     type: request.type,
                     days: request.days,
+                    startDate: request.startDate,
+                    endDate: request.endDate,
                     reason: request.reason,
                     status: request.status,
                     createdAt: request.createdAt,
